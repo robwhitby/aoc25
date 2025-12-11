@@ -31,8 +31,8 @@ pub fn part1(in: List(String)) -> Int {
 pub fn part2(in: List(String)) -> Int {
   let #(ranges, _) = parse(in)
   let sorted = list.sort(ranges, fn(a, b) { int.compare(a.0, b.0) })
-  let merged = merge(list.take(sorted, 1), list.drop(sorted, 1))
-  list.fold(merged, 0, fn(acc, range) { acc + range.1 - range.0 + 1 })
+  merge([], sorted)
+  |> list.fold(0, fn(acc, r) { acc + r.1 - r.0 + 1 })
 }
 
 fn merge(done: List(#(Int, Int)), remaining: List(#(Int, Int))) {
