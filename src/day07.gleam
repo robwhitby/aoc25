@@ -1,26 +1,27 @@
 import dir
+import gleam/dict
+import gleam/int
 import gleam/list
+import gleam/pair
 import gleam/result
 import grid.{type Grid}
 import input
 import point.{type Point, Point}
 
 fn parse(in: List(String)) {
-  grid.from_list(input.string_parser(in, ""))
-}
+  let g = grid.from_list(input.string_parser(in, ""))
 
-fn eq(a: t) -> fn(t) -> Bool {
-  fn(b: t) { a == b }
-}
-
-pub fn part1(in: List(String)) -> Int {
-  let g = parse(in)
   let s =
-    grid.find(g, eq("S"))
+    grid.find(g, fn(v) { v == "S" })
     |> result.map(fn(c) { c.point })
     |> result.unwrap(Point(0, 0))
 
-  loop(g, [s], 0)
+  #(g, s)
+}
+
+pub fn part1(in: List(String)) -> Int {
+  let #(grid, start) = parse(in)
+  loop(grid, [start], 0)
 }
 
 fn loop(g: Grid(String), beams: List(Point), splits: Int) {
@@ -45,5 +46,30 @@ fn loop(g: Grid(String), beams: List(Point), splits: Int) {
 }
 
 pub fn part2(in: List(String)) -> Int {
-  0
+  let #(grid, start) = parse(in)
+  loop2(grid, [#(start, 1)])
+}
+
+fn loop2(g: Grid(String), beams: List(#(Point, Int))) {
+  let next =
+    list.map(beams, pair.map_first(_, point.add(_, dir.s)))
+    |> list.flat_map(fn(p) {
+      case grid.value_at(g, p.0) {
+        Ok("^") ->
+          point.neighbours(p.0, [dir.e, dir.w])
+          |> list.map(fn(n) { #(n, p.1) })
+        Ok(_) -> [p]
+        _ -> []
+      }
+    })
+
+  let next_merged =
+    list.group(next, fn(p) { p.0 })
+    |> dict.to_list
+    |> list.map(fn(p) { #(p.0, list.fold(p.1, 0, fn(acc, x) { acc + x.1 })) })
+
+  case next {
+    [] -> list.map(beams, fn(p) { p.1 }) |> int.sum
+    _ -> loop2(g, next_merged)
+  }
 }
