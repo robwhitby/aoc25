@@ -4,6 +4,7 @@ import day02
 import day03
 import day04
 import day05
+import day06
 import gleam/io
 import gleeunit
 
@@ -19,6 +20,7 @@ pub fn day_test_() {
     day(3, day03.part1, 357, day03.part2, 3_121_910_778_619),
     day(4, day04.part1, 13, day04.part2, 43),
     day(5, day05.part1, 3, day05.part2, 14),
+    day(6, day06.part1, 4_277_556, day06.part2, 3_263_827),
   ]
   aoc.build_tests(days)
 }
